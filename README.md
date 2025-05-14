@@ -116,6 +116,3 @@ Uygulama, Kitsu.io API'sini kullanarak anime verilerini çeker. API'den gelen JS
 4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
 5. Pull Request oluşturun
 
-## Lisans
-
-Bu proje MIT Lisansı altında lisanslanmıştır. 
