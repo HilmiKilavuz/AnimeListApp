@@ -31,6 +31,19 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.kilavuzhilmi.anime_list_app.domain.model.AnimeData
 
+/**
+ * Anime kartı bileşeni
+ * 
+ * Bu Composable, anime liste ekranında her bir anime'yi gösteren kart bileşenidir.
+ * Kartın içinde anime posteri, puanı, başlığı ve kısa açıklaması yer alır.
+ * SharedTransition API'si kullanılarak, poster görseli için liste ekranından
+ * detay ekranına animasyonlu geçiş sağlanır.
+ * 
+ * @param anime Görüntülenecek anime verisi
+ * @param onClick Karta tıklandığında çağrılacak fonksiyon
+ * @param animatedVisibilityScope Animasyonlu geçişler için gereken scope
+ * @param modifier Composable'ı özelleştirmek için kullanılabilecek modifier (isteğe bağlı)
+ */
 @Composable
 fun SharedTransitionScope.AnimeCard(
     anime: AnimeData,
@@ -39,26 +52,34 @@ fun SharedTransitionScope.AnimeCard(
     modifier: Modifier= Modifier
 
 ) {
+    // Material3 Card bileşeni, tıklanabilir kart sağlar
     Card(
         onClick = onClick,
         modifier = modifier
     ) {
+        // Yatay düzende poster ve bilgiler
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.padding(6.dp)
         ){
+            // Anime poster görseli
             AsyncImage(model = anime.attributes.posterImage.original,
                 contentDescription = "Poster" ,
                 modifier = Modifier
                     .size(96.dp)
                     .clip(RoundedCornerShape(10.dp)).sharedElement(
+                        // SharedTransition API ile liste ekranından detay ekranına
+                        // poster görselinin animasyonlu geçişini sağlar
                         rememberSharedContentState(key = anime.id?: ""),
                         animatedVisibilityScope= animatedVisibilityScope
                     ),
                 contentScale = ContentScale.Crop
             )
+            
+            // Anime bilgileri sütunu
             Column {
+                // Puan bilgisi (yıldız ikonu ile birlikte)
                 Row(modifier= Modifier.background(
                     color = Color(0xFFC4C7EB),
                     shape = RoundedCornerShape(30.dp)).
@@ -69,9 +90,13 @@ fun SharedTransitionScope.AnimeCard(
                         contentDescription = "",
                         tint = Color.Yellow)
                     Text(text = anime.attributes?.averageRating.toString())
-            }
+                }
+                
+                // Anime başlığı
                 Text(text = anime.attributes?.canonicalTitle.toString(),
                     style = MaterialTheme.typography.titleMedium)
+                
+                // Kısa özet metni (max 2 satır)
                 Text(text = anime.attributes?.synopsis.toString(),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 2)

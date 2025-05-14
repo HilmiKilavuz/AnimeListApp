@@ -27,7 +27,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.kilavuzhilmi.anime_list_app.ui.screen.anime_list.composable.AnimeCard
 
-
+/**
+ * Trend olan animelerin listelendiği ekran
+ * 
+ * Bu Composable, API'den çekilen trend animeleri listeler.
+ * Jetpack Compose'un SharedTransition API'sini kullanarak, anime seçildiğinde
+ * detay ekranına animasyonlu geçiş sağlar.
+ * 
+ * Yükleme durumunda yükleme göstergesi (CircularProgressIndicator) gösterilir,
+ * veriler yüklendiğinde anime listesi görüntülenir.
+ * 
+ * @param onAnimeClick Anime seçildiğinde çağrılacak fonksiyon, kapak görseli ve ID parametreleriyle
+ * @param animatedVisibilityScope Animasyonlu geçişler için gereken scope
+ * @param viewModel TrendingAnimeListViewModel, Hilt ile otomatik enjekte edilir
+ */
 @Composable
 fun SharedTransitionScope.TrendingAnimeListScreen(
     onAnimeClick: (String?, Int?) -> Unit,
@@ -35,10 +48,16 @@ fun SharedTransitionScope.TrendingAnimeListScreen(
     viewModel: TrendingAnimeListViewModel = hiltViewModel(),
 
     ){
+    // ViewModel'den anime listesini alır ve state değişikliklerini izler
     val animeList by viewModel.animeList.collectAsStateWithLifecycle()
+    
+    // Scaffold, Material Design temel ekran yapısını sağlar
     Scaffold() {innerPadding->
+        // AnimatedContent, farklı içerikler arasında animasyonlu geçiş sağlar
+        // Burada yükleme durumu ve liste arasında geçiş yapılır
         AnimatedContent(targetState = animeList.isEmpty(), label = "") { isEmpty ->
             if(isEmpty){
+                // Yükleme durumunda, ekranın ortasında bir yükleme göstergesi gösterilir
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -49,6 +68,7 @@ fun SharedTransitionScope.TrendingAnimeListScreen(
 
 
             }else{
+                // Veriler yüklendiğinde anime listesi gösterilir
                 LazyColumn (
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = PaddingValues(
@@ -61,6 +81,7 @@ fun SharedTransitionScope.TrendingAnimeListScreen(
                     )
 
                 ){
+                    // Liste başlığı
                     item {
                         Text(text = "Trending Anime",
                             style = MaterialTheme.typography.displaySmall,
@@ -68,7 +89,11 @@ fun SharedTransitionScope.TrendingAnimeListScreen(
                         )
 
                     }
+                    
+                    // Anime kartlarının listelenmesi
                     items(animeList) {anime->
+                        // Her anime için bir kart oluşturulur
+                        // Karta tıklandığında onAnimeClick ile navigasyon sağlanır
                         AnimeCard(anime = anime, onClick = {
                             onAnimeClick(anime.attributes?.posterImage?.original.toString(),anime.id.toInt())
 

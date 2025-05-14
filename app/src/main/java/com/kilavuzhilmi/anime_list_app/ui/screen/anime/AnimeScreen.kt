@@ -37,6 +37,18 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.size.Scale
 
+/**
+ * Anime detay ekranı
+ * 
+ * Bu Composable, seçilen bir anime'nin detay bilgilerini gösterir.
+ * Jetpack Compose'un SharedTransition API'sini kullanarak, liste ekranından detay ekranına
+ * geçişte anime kapak görselini animasyonlu şekilde geçirir.
+ * 
+ * @param id Anime ID'si, API'den detay bilgileri almak için kullanılır
+ * @param coverImage Anime kapak görseli URL'si, API'den gelmeden önce gösterilir
+ * @param animatedVisibilityScope Animasyonlu geçişler için gereken scope
+ * @param viewModel AnimeViewModel, Hilt ile otomatik enjekte edilir
+ */
 @Composable
 fun SharedTransitionScope.AnimeScreen(
     id: String,
@@ -44,17 +56,25 @@ fun SharedTransitionScope.AnimeScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: AnimeViewModel = hiltViewModel()
 ) {
+    /**
+     * LaunchedEffect, Composable'ın ilk oluşturulduğunda bir kez çalışan yan etki bloğudur.
+     * Burada anime ID'si kullanılarak API'den anime detayları çekilir.
+     */
     LaunchedEffect(key1 = true) {
         viewModel.getAnimeById(id.toInt())
 
     }
+    // ViewModel'den anime verilerini alır ve state değişikliklerini izler
     val anime by viewModel.anime.collectAsStateWithLifecycle()
+    
+    // Scaffold, Material Design temel ekran yapısını sağlar (appbar, content, bottombar alanları)
     Scaffold { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = innerPadding.calculateBottomPadding() + 10.dp)
         ) {
+            // Kapak görseli
             item {
                 AsyncImage(
                     model = coverImage, contentDescription = "Cover Image",
@@ -64,12 +84,16 @@ fun SharedTransitionScope.AnimeScreen(
                         .clip(
                             RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
                         ).sharedElement(
+                            // SharedTransition API ile liste ekranından kapak görselinin
+                            // animasyonlu geçişini sağlar
                             rememberSharedContentState(key = id),
                             animatedVisibilityScope = animatedVisibilityScope
                         ),
                     contentScale = ContentScale.Crop
                 )
             }
+            
+            // Anime detayları (başlık, yıl, puan, özet)
             item {
                 if (anime != null) {
                     Column(
@@ -77,13 +101,17 @@ fun SharedTransitionScope.AnimeScreen(
                             .padding(horizontal = 20.dp, vertical = 16.dp)
                             .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        // Anime başlığı
                         Text(
                             text = anime?.attributes?.canonicalTitle.toString(),
                             style = MaterialTheme.typography.displaySmall,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
                         )
+                        
+                        // Yapım yılı ve puan bilgileri
                         Row() {
+                            // Yapım yılı (ilk tarih ögesi alınır)
                             Text(
                                 text = anime?.attributes?.startDate?.split("-")?.first().toString(),
                                 style = MaterialTheme.typography.titleMedium,
@@ -93,6 +121,8 @@ fun SharedTransitionScope.AnimeScreen(
                             Text(
                                 text = "-", modifier = Modifier.padding(horizontal = 4.dp)
                             )
+                            
+                            // Yıldız ikonu ve puan
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(1.dp),
                                 verticalAlignment = Alignment.CenterVertically
@@ -112,6 +142,8 @@ fun SharedTransitionScope.AnimeScreen(
 
                         }
                         Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Anime özeti bölümü
                         Column(horizontalAlignment = Alignment.Start) {
                             Text(
                                 text = "Synopsis",

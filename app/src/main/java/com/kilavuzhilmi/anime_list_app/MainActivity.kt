@@ -24,29 +24,56 @@ import com.kilavuzhilmi.anime_list_app.ui.theme.Anime_List_AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
+/**
+ * MainActivity - Uygulamanın ana aktivitesi
+ * 
+ * Bu sınıf, uygulamanın başlangıç noktasıdır ve Jetpack Compose ile kullanıcı arayüzünü ayarlar.
+ * Compose Navigation ve SharedTransition API'lerini kullanarak ekranlar arası geçişi yönetir.
+ * 
+ * @OptIn(ExperimentalSharedTransitionApi::class) - SharedTransition API'si henüz deneysel olduğu için
+ * bu anotasyon ile açıkça kabul edilmesi gerekir.
+ * 
+ * @AndroidEntryPoint - Hilt bağımlılık enjeksiyonu için bu aktivitenin bir giriş noktası olduğunu belirtir.
+ * Bu sayede, Hilt ViewModel'ler ve diğer bağımlılıklar bu aktiviteye enjekte edilebilir.
+ */
 @OptIn(ExperimentalSharedTransitionApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Edge-to-edge görünüm sağlar (durum çubuğu ve gezinti çubuğu dahil tam ekran)
+        // Şeffaf durum çubuğu ayarlanır
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
         )
+        
+        // Compose UI'ın ayarlanması
         setContent {
+            // Uygulama teması uygulanır
             Anime_List_AppTheme {
+                // Navigation Controller oluşturulur ve hatırlanır
                 val navController = rememberNavController()
 
+                // SharedTransitionLayout, ekranlar arası geçişlerde paylaşılan öğelerin
+                // animasyonlu geçişini sağlar
                 SharedTransitionLayout {
+                    // Navigation Host, uygulamanın ekranları arasında gezinmeyi kontrol eder
                     NavHost(navController = navController, startDestination = TrendingAnimeRoute) {
+                        // Trend olan animeler listesi ekranı
                         composable<TrendingAnimeRoute> {
                             TrendingAnimeListScreen(
+                                // Bir anime'ye tıklandığında, anime detay ekranına navigasyon yapılır
                                 onAnimeClick = { cover, id ->
                                     navController.navigate(AnimeRoute(id = id.toString(), coverImage = cover.toString()))
                                 },
                                 animatedVisibilityScope = this
                             )
                         }
+                        
+                        // Anime detay ekranı
                         composable<AnimeRoute> {
+                            // Route parametreleri AnimeRoute sınıfına dönüştürülür
                             val args = it.toRoute<AnimeRoute>()
                             AnimeScreen(id = args.id, coverImage = args.coverImage.toString(),
                                 animatedVisibilityScope = this)
@@ -64,8 +91,22 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Trend olan animeler listesi ekranının rota tanımı
+ * 
+ * @Serializable - Kotlin Serialization kütüphanesi ile serileştirilebilir olduğunu belirtir
+ * data object, parametre almayan bir rota için kullanılır
+ */
 @Serializable
 data object TrendingAnimeRoute
 
+/**
+ * Anime detay ekranının rota tanımı
+ * 
+ * @property id Anime ID'si, ekrana geçiş yaparken zorunlu parametre
+ * @property coverImage Anime kapak görseli URL'si, null olabilir
+ * 
+ * @Serializable - Kotlin Serialization kütüphanesi ile serileştirilebilir olduğunu belirtir
+ */
 @Serializable
 data class AnimeRoute(val id: String, val coverImage: String?)
