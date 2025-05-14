@@ -4,7 +4,13 @@
 
 Anime List App, Kitsu.io API'sini kullanarak trend olan animeleri listeleyen ve detaylarını gösteren bir Android uygulamasıdır. Modern Android geliştirme teknolojileri ve mimarisi kullanılarak oluşturulmuştur.
 
-![Anime Liste Ekranı](/screenshots/anime_list_screen.png) ![Anime Detay Ekranı](/screenshots/anime_detail_screen.png)
+## Screenshots
+
+<p float="left">
+ <img src="/screenshots/ss2.jpg" width="250" />
+<img src="/screenshots/ss1.jpg" width="250" />
+</p>
+
 
 ## Kullanılan Teknolojiler ve Mimari
 
